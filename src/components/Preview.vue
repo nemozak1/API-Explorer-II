@@ -29,9 +29,10 @@
 import { ref, reactive, inject, onBeforeMount } from 'vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { getOperationDetails } from '../obp/resource-docs'
-import type { ElNotification, FormInstance } from 'element-plus'
+import { ElNotification, FormInstance } from 'element-plus'
 import { OBP_API_VERSION, get, create, update, discard, createEntitlement, getCurrentUser } from '../obp'
 import { obpResourceDocsKey } from '@/obp/keys'
+import * as cheerio from 'cheerio'
 
 const elMessageDuration = 5500
 const configVersion = 'OBP' + OBP_API_VERSION
@@ -202,6 +203,39 @@ onBeforeRouteUpdate((to) => {
   responseHeaderTitle.value = 'TYPICAL SUCCESSFUL RESPONSE'
   setRoleForm()
 })
+
+const copyToClipboard = () => {
+  // Create a temporary text area to hold the content
+  const textArea = document.createElement('textarea');
+
+  // Parse the HTML content with Cheerio
+  const $ = cheerio.load(successResponseBody.value);
+
+  // Extract all JSON lines
+  const jsonLines: string[] = [];
+  $('.hljs-ln-code').each((_, element) => {
+      jsonLines.push($(element).text());
+  });
+
+  // Combine lines to form raw JSON
+  const rawJson = jsonLines.join('\n');
+  console.log(rawJson);
+
+  textArea.value = rawJson; // Set the text to copy
+  document.body.appendChild(textArea); // Append the text area to the DOM
+  textArea.select(); // Select the text inside the text area
+  document.execCommand('copy'); // Execute the copy command
+  document.body.removeChild(textArea); // Remove the text area from the DOM
+
+  // Show feedback to the user
+  ElNotification({
+    message: 'Response copied to clipboard!',
+    type: 'success',
+    duration: elMessageDuration
+  });
+};
+
+
 </script>
 
 <template>
@@ -231,8 +265,10 @@ onBeforeRouteUpdate((to) => {
     </div>
     <div v-show="successResponseBody">
       <pre>
-        {{responseHeaderTitle}}:
-        <code><div id="code" v-html="successResponseBody"></div></code>
+        {{ responseHeaderTitle }}:
+        <code>
+          <div @click="copyToClipboard" id="code" v-html="successResponseBody"></div>
+        </code>
       </pre>
     </div>
     <el-form ref="roleFormRef" :model="roleForm">
