@@ -78,7 +78,7 @@ const setOperationDetails = (id: string, version: string): void => {
   showRequiredRoles.value = requiredRoles.value.length > 0
   showValidations.value = validations.value.length > 0
   showPossibleErrors.value = possibleErrors.value.length > 0
-  showConnectorMethods.value = connectorMethods.value.length > 0
+  showConnectorMethods.value = true
   footNote.value.version = operation.operation_id
   footNote.value.version = operation.implemented_by.version
   footNote.value.functionName = operation.implemented_by.function
