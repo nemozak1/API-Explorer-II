@@ -1,7 +1,6 @@
 {
   "name": "api-explorer",
-  "version": "1.0.20",
-  "type": "module",
+  "version": "1.0.21",
   "private": true,
   "scripts": {
     "dev": "vite & ts-node server/app.ts",
@@ -19,6 +18,7 @@
     "@fontsource/roboto": "^5.0.0",
     "@highlightjs/vue-plugin": "^2.1.0",
     "axios": "^1.7.2",
+    "cheerio": "^1.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "connect-redis": "^7.1.1",
