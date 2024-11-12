@@ -219,7 +219,6 @@ const copyToClipboard = () => {
 
   // Combine lines to form raw JSON
   const rawJson = jsonLines.join('\n');
-  console.log(rawJson);
 
   textArea.value = rawJson; // Set the text to copy
   document.body.appendChild(textArea); // Append the text area to the DOM
