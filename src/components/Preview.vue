@@ -219,7 +219,6 @@ const copyToClipboard = () => {
 
   // Combine lines to form raw JSON
   const rawJson = jsonLines.join('\n');
-  console.log(rawJson);
 
   textArea.value = rawJson; // Set the text to copy
   document.body.appendChild(textArea); // Append the text area to the DOM
@@ -330,7 +329,9 @@ const copyToClipboard = () => {
       <p>{{ $t('preview.connector_methods') }}:</p>
       <ul>
         <li v-for="method in connectorMethods" :key="method" :name="method">
-          {{ method }}
+          <a id="conector-method-link" :href="`/message-docs/rabbitmq_vOct2024/#${method}` " >
+            {{ method }}
+          </a>
         </li>
       </ul>
     </div>
@@ -448,5 +449,9 @@ li {
 #request-role-button-panel {
   width: 95%;
   margin: 0 0 -30px 0;
+}
+
+#conector-method-link {
+  color: white !important;
 }
 </style>
