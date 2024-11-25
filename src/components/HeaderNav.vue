@@ -41,7 +41,7 @@ import { obpApiActiveVersionsKey, obpGroupedMessageDocsKey, obpMyCollectionsEndp
 
 const route = useRoute()
 const router = useRouter()
-const obpApiHost = ref(import.meta.env.VITE_OBP_API_HOST)
+const obpApiHost = ref(import.meta.env.VITE_OBP_API_PORTAL_HOST || import.meta.env.VITE_OBP_API_HOST);
 const obpApiManagerHost = ref(import.meta.env.VITE_OBP_API_MANAGER_HOST)
 const loginUsername = ref('')
 const logoffurl = ref('')
