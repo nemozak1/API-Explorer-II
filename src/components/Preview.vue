@@ -263,10 +263,9 @@ const copyToClipboard = () => {
       <input type="text" v-show="exampleRequestBody" v-model="exampleRequestBody" />
     </div>
     <div v-show="successResponseBody">
-      <pre>
-        {{ responseHeaderTitle }}:
+      <pre><span @click="copyToClipboard">{{ responseHeaderTitle }}:</span>
         <code>
-          <div @click="copyToClipboard" id="code" v-html="successResponseBody"></div>
+          <div id="code" v-html="successResponseBody"></div>
         </code>
       </pre>
     </div>
@@ -369,6 +368,9 @@ pre {
   font-size: 14px;
   font-family: 'Roboto';
   font-weight: normal;
+}
+pre span {
+  all: unset; /* Reset all default styles */
 }
 input[type='text'] {
   color: #ffffff;
