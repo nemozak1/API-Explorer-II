@@ -263,7 +263,7 @@ const copyToClipboard = () => {
       <input type="text" v-show="exampleRequestBody" v-model="exampleRequestBody" />
     </div>
     <div v-show="successResponseBody">
-      <pre><span @click="copyToClipboard">{{ responseHeaderTitle }}:</span>
+      <pre><span>{{ responseHeaderTitle }}:</span>
         <code>
           <div id="code" v-html="successResponseBody"></div>
         </code>

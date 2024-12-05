@@ -31,6 +31,7 @@ import OBPClientService from '../services/OBPClientService'
 import OauthInjectedService from '../services/OauthInjectedService'
 import { Service } from 'typedi'
 import { OAuthConfig } from 'obp-typescript'
+import { commitId } from '../app'
 
 @Service()
 @Controller('/status')
@@ -60,9 +61,10 @@ export class StatusController {
     const resourceDocs = await this.checkResourceDocs(oauthConfig, version)
     return response.json({
       status: apiVersions && messageDocs && resourceDocs,
-      apiVersions,
-      messageDocs,
-      resourceDocs
+      api_version: apiVersions,
+      message_docs: messageDocs,
+      resource_docs: resourceDocs,
+      commit_id: commitId
     })
   }
 

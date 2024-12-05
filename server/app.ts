@@ -34,6 +34,7 @@ import express, { Application } from 'express'
 import { useExpressServer, useContainer } from 'routing-controllers'
 import { Container } from 'typedi'
 import path from 'path'
+import { execSync } from 'child_process';
 
 const port = 8085
 const app: Application = express()
@@ -108,7 +109,6 @@ useContainer(Container)
 const routePrefix = '/api'
 
 const server = useExpressServer(app, {
-  //routePrefix: '/api/v1',
   routePrefix: routePrefix,
   controllers: [path.join(__dirname + '/controllers/*.*s')],
   middlewares: [path.join(__dirname + '/middlewares/*.*s')]
@@ -119,5 +119,19 @@ export const instance = server.listen(port)
 console.log(
   `Backend is running. You can check a status at http://localhost:${port}${routePrefix}/status`
 )
+
+// Get commit ID
+export const commitId = execSync('git rev-parse HEAD').toString().trim();
+console.log('Current Commit ID:', commitId);
+
+// Error Handling to Shut Down the App
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${port} is already in use.`);
+    process.exit(1); // Shut down the app
+  } else {
+    console.error('An error occurred:', err);
+  }
+});
 
 export default app
