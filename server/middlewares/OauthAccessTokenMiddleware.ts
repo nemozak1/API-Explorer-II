@@ -67,6 +67,7 @@ export default class OauthAccessTokenMiddleware implements ExpressMiddlewareInte
           if(!obpExplorerHome) {
             console.error(`VITE_OBP_API_EXPLORER_HOST: ${obpExplorerHome}`)
           }
+          console.log(`OauthAccessTokenMiddleware.ts use says: Will redirect to: ${obpExplorerHome}`)
           response.redirect(`${obpExplorerHome}`)
         }
       }
