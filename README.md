@@ -112,6 +112,37 @@ server {
 }
 ```
 
+Note: if you have issues with session stickyness / login issues, enable #DEBUG=express-session in your .env
+and if you see messages like these in the log,
+
+```
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session no SID sent, generating session
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session saving 5JIW_dx9CG8qs0OK4iv7Pn2Kg2huZuvQ
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session not secured
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session split response
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session saving -yf0uzAZf5mP9JVYov9oMR7CxQLnO4wm
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session not secured
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session no SID sent, generating session
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session saving nballQYMYZRn_HG0enM2RIPdv7GAdzJc
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session not secured
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session no SID sent, generating session
+Dec 10 12:26:18 obp-sandbox node[1060160]: Tue, 10 Dec 2024 12:26:18 GMT express-session no SID sent, generating session
+
+```
+
+then make sure your NGINX config includes the $scheme: 
+
+```
+
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;
+
+```
+
+so that Node knows that the cookies have been sent securely over https.
+
+
 # LICENSE
 
 This project is licensed under the AGPL V3 (see NOTICE) and a commercial license from TESOBE.
