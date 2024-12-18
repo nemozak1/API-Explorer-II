@@ -31,6 +31,7 @@ import OBPClientService from '../services/OBPClientService'
 import OauthInjectedService from '../services/OauthInjectedService'
 import { Service } from 'typedi'
 import { OAuthConfig } from 'obp-typescript'
+import { commitId } from '../app'
 
 @Service()
 @Controller('/status')
@@ -64,7 +65,8 @@ export class StatusController {
       apiVersions,
       messageDocs,
       resourceDocs,
-      currentUser
+      currentUser,
+      commitId
     })
   }
 

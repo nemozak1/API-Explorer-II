@@ -44,22 +44,23 @@ export function updateLoadingInfoMessage(logMessage: string) {
 }
 
 export function updateServerStatus() {
-  const oElem = document.getElementById('backend-status')
+  const oElem = document.getElementById('backend-status');
   serverStatus()
     .then((body) => {
       if (oElem) {
-        Object.values(body).every((i) => i === true)
+        body.status === true
           ? (oElem.className = 'server-is-online')
-          : (oElem.className = 'server-is-offline')
+          : (oElem.className = 'server-is-offline');
       }
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error);
       if (oElem) {
-        oElem.className = 'server-is-offline'
+        oElem.className = 'server-is-offline';
       }
-    })
+    });
 }
+
 
 export async function getCacheStorageInfo() {
   const message = await navigator.storage.estimate().then((estimate) => {
