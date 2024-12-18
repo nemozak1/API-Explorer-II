@@ -85,15 +85,13 @@ a {
   color: #39455f;
 }
 .content :deep(a) {
-  text-decoration: none;
-  color: #ffffff;
+  text-decoration: underline;
   font-family: 'Roboto';
   font-size: 14px;
   border-radius: 3px;
-  background-color: #52b165;
   padding: 1px;
 }
 .content :deep(a):hover {
-  background-color: #39455f;
+  background-color: #a4b2ce;
 }
 </style>
