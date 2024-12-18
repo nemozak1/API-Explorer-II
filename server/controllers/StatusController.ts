@@ -65,7 +65,8 @@ export class StatusController {
       apiVersions,
       messageDocs,
       resourceDocs,
-      currentUser
+      currentUser,
+      commitId
     })
   }
 

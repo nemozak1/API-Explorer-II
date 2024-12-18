@@ -39,7 +39,7 @@ onBeforeMount(async () => {
 <template>
   <main>
     <div class="content">
-      <div v-for="(value, name, index) in status" :key="index" v-if="name !== 'commit_id'">
+      <div v-for="(value, name, index) in status" :key="index" v-if="name !== 'commitId'">
         <div v-if="name === 'status'" class="status">
           <el-icon v-if="value === true" style="vertical-align: middle; color: green; width: auto"
             ><SuccessFilled
@@ -47,7 +47,7 @@ onBeforeMount(async () => {
           <el-icon v-else style="vertical-align: middle; color: red"><RemoveFilled /></el-icon>
           <span class="main-status-label">{{ name }}</span>
         </div>
-        <div v-else-if="name !== 'commit_id'" class="sub-status">
+        <div v-else-if="name !== 'commitId'" class="sub-status">
           <span class="status-label">{{ name }}</span>
           &nbsp;&nbsp;&nbsp;<el-divider />&nbsp;&nbsp;&nbsp;
           <el-icon
@@ -61,7 +61,7 @@ onBeforeMount(async () => {
     </div>
   </main>
   <span>App Version: {{ version }}</span>
-  <span>Commit ID: {{ status.commit_id }}</span>
+  <span>Commit ID: {{ status.commitId }}</span>
 </template>
 
 <style scoped>
