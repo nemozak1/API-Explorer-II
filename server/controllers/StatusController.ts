@@ -56,15 +56,16 @@ export class StatusController {
   ): Response {
     const oauthConfig = session['clientConfig']
     const version = this.obpClientService.getOBPVersion()
+    const currentUser = await this.obpClientService.get(`/obp/${version}/users/current`, oauthConfig)
     const apiVersions = await this.checkApiVersions(oauthConfig, version)
     const messageDocs = await this.checkMessagDocs(oauthConfig, version)
     const resourceDocs = await this.checkResourceDocs(oauthConfig, version)
     return response.json({
       status: apiVersions && messageDocs && resourceDocs,
-      api_version: apiVersions,
-      message_docs: messageDocs,
-      resource_docs: resourceDocs,
-      commit_id: commitId
+      apiVersions,
+      messageDocs,
+      resourceDocs,
+      currentUser
     })
   }
 

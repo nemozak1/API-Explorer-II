@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	// Define the host env variables to be replaced at build time
 	config := []string{"VITE_OBP_API_HOST", "VITE_OBP_API_MANAGER_HOST", "VITE_OBP_API_PORTAL_HOST"}
 	configMap := make(map[string]string)
 
