@@ -1,0 +1,16 @@
+services:
+  backend:
+    image: "docker.io/openbankproject/api-explorer-ii:latest"
+    ports:
+      - "8085:8085"
+    env_file:
+      - /path/to/.env-docker
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    image: "docker.io/openbankproject/api-explorer-ii-nginx:latest"
+    env_file:
+      - /path/to/.env-docker
+    ports:
+      - "8095:8080"
