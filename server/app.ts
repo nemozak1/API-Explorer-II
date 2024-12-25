@@ -121,8 +121,20 @@ console.log(
 )
 
 // Get commit ID
-export const commitId = execSync('git rev-parse HEAD').toString().trim();
-console.log('Current Commit ID:', commitId);
+export let commitId = '';
+
+try {
+    // Try to get the commit ID
+    commitId = execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim();
+    console.log('Current Commit ID:', commitId);
+} catch (error) {
+    // Log the error but do not terminate the process
+    console.error('Warning: Failed to retrieve the commit ID. Proceeding without it.');
+    console.error('Error details:', error.message);
+    commitId = 'unknown'; // Assign a fallback value
+}
+// Continue execution with or without a valid commit ID
+console.log('Execution continues with commitId:', commitId);
 
 // Error Handling to Shut Down the App
 server.on('error', (err) => {

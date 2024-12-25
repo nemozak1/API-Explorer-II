@@ -263,11 +263,9 @@ const copyToClipboard = () => {
       <input type="text" v-show="exampleRequestBody" v-model="exampleRequestBody" />
     </div>
     <div v-show="successResponseBody">
-      <pre><span>{{ responseHeaderTitle }}:</span>
-        <code>
-          <div id="code" v-html="successResponseBody"></div>
-        </code>
-      </pre>
+      <p class="header-container">{{ responseHeaderTitle }}:</p>
+      <pre><button @click="copyToClipboard" class="copy-button icon-md-heavy" title="Copy to Clipboard"><i class="material-icons">content_copy</i></button>
+        <code><div id="code" v-html="successResponseBody"></div></code></pre>
     </div>
     <el-form ref="roleFormRef" :model="roleForm">
       <div v-show="showRequiredRoles">
@@ -455,5 +453,30 @@ li {
 
 #conector-method-link {
   color: white !important;
+}
+.copy-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-button .material-icons {
+  font-size: 20px;
+  color: #757575;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.copy-button:hover .material-icons {
+  color: #424242;
+  transform: scale(1.1);
+}
+
+.copy-button:active .material-icons {
+  color: #212121;
+  transform: scale(0.95);
 }
 </style>
