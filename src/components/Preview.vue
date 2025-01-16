@@ -260,7 +260,7 @@ const copyToClipboard = () => {
       />
     </div>
     <div class="flex-preview-panel">
-      <input type="text" v-show="exampleRequestBody" v-model="exampleRequestBody" />
+      <input type="text" v-model="exampleRequestBody" />
     </div>
     <div v-show="successResponseBody">
       <p class="header-container">{{ responseHeaderTitle }}:</p>
