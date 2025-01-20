@@ -154,7 +154,7 @@ You will need to create a public-private key pair using open ssl (minimum 2048 b
 2. Generate the public private key pair inside the ./server/cert directory
 ```
 openssl genrsa -out private_key.pem 2048
-openssl rsa -in private.pem -pubout -out public_key.pem
+openssl rsa -in private_key.pem -pubout -out public_key.pem
 ```
 3. Copy the public key to Opey top level directory 
 ```
