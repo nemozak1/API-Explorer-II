@@ -44,4 +44,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SearchNav: typeof import('./src/components/SearchNav.vue')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }

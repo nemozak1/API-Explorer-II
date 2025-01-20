@@ -74,8 +74,13 @@ export async function getCacheStorageInfo() {
 
 export async function getOpeyJWT() {
   const response = await axios.post('/api/opey/token').catch((error) => {
-    console.log(error)
-  })
+    if (error.response) {
+      throw new Error(`getOpeyJWT returned an error: ${error.toJSON()}`);
+      
+    } else {
+      throw new Error(`getOpeyJWT returned an error: ${error.message}`);
+    }
+  });
   const token = String(response?.data?.token)
   return token
 }

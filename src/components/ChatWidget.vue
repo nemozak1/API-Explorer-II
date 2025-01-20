@@ -70,13 +70,16 @@
 
       const { isStreaming, chatMessages, currentMessageSnapshot, lastError } = storeToRefs(chatStore);
 
-      return {isStreaming, chatMessages, lastError, currentMessageSnapshot, chatStore, connectionStore}
+      const { isConnected } = storeToRefs(connectionStore);
+
+      return {isStreaming, chatMessages, lastError, currentMessageSnapshot, chatStore, connectionStore, isConnected}
     },
     data() {
       return {
         isOpen: false,
         userInput: '',
         sessionId: uuidv4(),
+        awaitingConnection: !this.isConnected,
         isLoading: false,
         obpApiHost: null,
         isLoggedIn: null,
@@ -117,18 +120,27 @@
         try {
           token = await getOpeyJWT()
         } catch (error) {
+          console.log('Error creating JWT for opey: ', error)
           this.errorState = true
           ElMessage({
             message: 'Error getting Opey JWT token',
             type: 'error'
           });
-          console.log(error)
-          token = ''
+          
         }
  
         // Establish the WebSocket connection
         console.log('Establishing WebSocket connection');
-        this.connectionStore.connect(token)
+        try{
+          this.connectionStore.connect(token)
+        } catch (error) {
+          console.log('Error establishing WebSocket connection: ', error)
+          this.errorState = true
+          ElMessage({
+            message: 'Error establishing WebSocket connection',
+            type: 'error'
+          });
+        }
       
       },
       async sendMessage() {
@@ -257,7 +269,7 @@
           <span>Chat with Opey</span>
           <img alt="Powered by OpenAI" src="@/assets/powered-by-openai-badge-outlined-on-dark.svg" height="32">
         </div>
-        <div v-if="this.isLoggedIn" class="chat-messages" ref="messages">
+        <div v-if="this.isLoggedIn" v-loading="this.awaitingConnection" element-loading-text="Awaiting Connection..." class="chat-messages" ref="messages">
           <div v-for="(message, index) in chatMessages" :key="index" :class="['chat-message', message.role]">
             <div v-if="(this.isStreaming)&&(index === this.chatMessages.length -1)">
               <div v-html="renderMarkdown(this.currentMessageSnapshot)"></div>
@@ -300,6 +312,8 @@
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
+          
+          
         </div>
         <div v-else class="chat-messages">
           <p>Opey is only availabled when logged in. <a v-bind:href="'/api/connect'">Log In</a> </p>
@@ -317,14 +331,14 @@
             placeholder="Type your message..."
             @keypress="submitEnter"
             type="textarea"
-            :disabled="!isLoggedIn ? '' : disabled"
+            :disabled="!isLoggedIn || this.awaitingConnection ? '' : disabled"
           >
           </el-input>
           <!--<textarea v-model="userInput" placeholder="Type your message..." @keypress="submitEnter"></textarea>-->
           <button 
             @click="sendMessage" 
-            :disabled="!isLoggedIn ? '' : disabled"
-            :style="!isLoggedIn ? 'background-color:#929292; cursor:not-allowed' : ''"
+            :disabled="!isLoggedIn || this.awaitingConnection ? '' : disabled"
+            :style="!isLoggedIn || this.awaitingConnection ? 'background-color:#929292; cursor:not-allowed' : ''"
           >
           Send
           </button>

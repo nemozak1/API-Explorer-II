@@ -114,7 +114,8 @@ export class OpeyController {
         username: obpUsername,
         exp: Math.floor(Date.now() / 1000) + (60 * 60),
       };
-  
+      
+      console.log("Generating new token for Opey");
       const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
       session['opeyToken'] = token;
 
