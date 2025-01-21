@@ -289,14 +289,16 @@ const onError = (error) => {
       <!-- <textarea v-model="exampleRequestBody" rows="8" cols="40"></textarea> -->
       <!-- <input type="text" v-model="exampleRequestBody" /> -->
       <!-- <pre>{{ JSON.stringify(exampleRequestBody, null, 2) }}</pre> -->
-      <JsonEditorVue
-        v-model="exampleRequestBody"
-        class="jse-theme-dark"
-        :stringified="true"
-        :mode="Mode.tree"
-        v-bind="{/* local props & attrs */}"
-        :onChange="onJsonEditorChange"
-      />
+      <div class="json-editor jse-theme-dark">
+        <JsonEditorVue
+          v-model="exampleRequestBody"
+          :stringified="true"
+          :mode="Mode.tree"
+          v-bind="{/* local props & attrs */}"
+          :onChange="onJsonEditorChange"
+        />
+      </div>
+      
     </div>
     <div v-show="successResponseBody">
       <p class="header-container">{{ responseHeaderTitle }}:</p>
@@ -438,6 +440,11 @@ li {
   height: 1px;
   background-color: var(--el-border-color-light);
   z-index: var(--el-index-normal);
+}
+.json-editor {
+  --jse-theme-color: #253047;
+  --jse-theme-color-highlight: #4a5c84;
+  --jse-font-family-mono: 'Roboto', 'Courier New', monospace;
 }
 .flex-preview-panel {
   display: flex;
