@@ -32,6 +32,9 @@ import { getOperationDetails } from '../obp/resource-docs'
 import { ElNotification, FormInstance } from 'element-plus'
 import { OBP_API_VERSION, get, create, update, discard, createEntitlement, getCurrentUser } from '../obp'
 import { obpResourceDocsKey } from '@/obp/keys'
+import JsonEditorVue from 'json-editor-vue'
+import { Mode } from 'vanilla-jsoneditor'
+import 'vanilla-jsoneditor/themes/jse-theme-dark.css'
 import * as cheerio from 'cheerio'
 
 const elMessageDuration = 5500
@@ -41,6 +44,8 @@ const roleName = ref('')
 const method = ref('')
 const header = ref('')
 const responseHeaderTitle = ref('TYPICAL SUCCESSFUL RESPONSE')
+const exampleBodyTitle = ref('REQUEST BODY')
+const oldExampleBodyContent = ref('')
 const successResponseBody = ref('')
 const exampleRequestBody = ref('')
 const requiredRoles = ref([])
@@ -71,7 +76,7 @@ const setOperationDetails = (id: string, version: string): void => {
   const operation = getOperationDetails(version, id, resourceDocs)
   url.value = operation?.specified_url
   method.value = operation?.request_verb
-  exampleRequestBody.value = JSON.stringify(operation.example_request_body)
+  exampleRequestBody.value = operation.example_request_body
   requiredRoles.value = operation.roles || []
   possibleErrors.value = operation.error_response_bodies
   connectorMethods.value = operation.connector_methods
@@ -120,11 +125,11 @@ const submitRequest = async () => {
   if (url.value) {
     switch (method.value) {
       case 'POST': {
-        highlightCode(await create(url.value, exampleRequestBody.value))
+        highlightCode(await create(url.value, JSON.stringify(exampleRequestBody.value)))
         break
       }
       case 'PUT': {
-        highlightCode(await update(url.value, exampleRequestBody.value))
+        highlightCode(await update(url.value, JSON.stringify(exampleRequestBody.value)))
         break
       }
       case 'DELETE': {
@@ -234,6 +239,26 @@ const copyToClipboard = () => {
   });
 };
 
+const onJsonEditorChange = (updatedContent) => {
+  oldExampleBodyContent.value = exampleRequestBody.value;
+  try {
+    updatedContent = JSON.parse(JSON.stringify(updatedContent))
+    exampleRequestBody.value = updatedContent;
+  } catch (e) {
+    exampleRequestBody.value = oldExampleBodyContent.value;
+    console.log(`JSON not valid: ${e}`);
+  }
+  
+}
+
+const onError = (error) => {
+  console.error(error)
+  try {
+    exampleRequestBody.value = oldExampleBodyContent.value
+  } catch (e) {
+    console.error(e)
+  }
+}
 
 </script>
 
@@ -259,8 +284,19 @@ const copyToClipboard = () => {
         placeholder="Request Header (Header1:Value1::Header2:Value2)"
       />
     </div>
-    <div class="flex-preview-panel">
-      <input type="text" v-model="exampleRequestBody" />
+    <p v-show="exampleRequestBody" class="header-container">{{ exampleBodyTitle }}:</p>
+    <div class="flex-preview-panel" v-show="exampleRequestBody">
+      <!-- <textarea v-model="exampleRequestBody" rows="8" cols="40"></textarea> -->
+      <!-- <input type="text" v-model="exampleRequestBody" /> -->
+      <!-- <pre>{{ JSON.stringify(exampleRequestBody, null, 2) }}</pre> -->
+      <JsonEditorVue
+        v-model="exampleRequestBody"
+        class="jse-theme-dark"
+        :stringified="true"
+        :mode="Mode.tree"
+        v-bind="{/* local props & attrs */}"
+        :onChange="onJsonEditorChange"
+      />
     </div>
     <div v-show="successResponseBody">
       <p class="header-container">{{ responseHeaderTitle }}:</p>
