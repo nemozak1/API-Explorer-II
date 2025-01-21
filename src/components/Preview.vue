@@ -40,7 +40,6 @@ const url = ref('')
 const roleName = ref('')
 const method = ref('')
 const header = ref('')
-const exampleRequestBodyTitle = ref ('EXAMPLE REQUEST BODY')
 const responseHeaderTitle = ref('TYPICAL SUCCESSFUL RESPONSE')
 const successResponseBody = ref('')
 const exampleRequestBody = ref('')
@@ -72,7 +71,7 @@ const setOperationDetails = (id: string, version: string): void => {
   const operation = getOperationDetails(version, id, resourceDocs)
   url.value = operation?.specified_url
   method.value = operation?.request_verb
-  console.log(operation.example_request_body)
+  exampleRequestBody.value = JSON.stringify(operation.example_request_body)
   requiredRoles.value = operation.roles || []
   possibleErrors.value = operation.error_response_bodies
   connectorMethods.value = operation.connector_methods
@@ -85,17 +84,7 @@ const setOperationDetails = (id: string, version: string): void => {
   footNote.value.functionName = operation.implemented_by.function
   footNote.value.messageTags = operation.tags.join(',')
 
-  if (operation.success_response_body) {
-    successResponseBody.value = highlightCode(operation.success_response_body)
-  }
-
-  if (operation.example_request_body) {
-    exampleRequestBody.value = highlightCode(operation.example_request_body)
-  } else {
-    exampleRequestBody.value = ''
-  }
-  
-  
+  highlightCode(operation.success_response_body)
   setType(method.value)
 }
 
@@ -131,19 +120,19 @@ const submitRequest = async () => {
   if (url.value) {
     switch (method.value) {
       case 'POST': {
-        successResponseBody.value = highlightCode(await create(url.value, exampleRequestBody.value))
+        highlightCode(await create(url.value, exampleRequestBody.value))
         break
       }
       case 'PUT': {
-        successResponseBody.value = highlightCode(await update(url.value, exampleRequestBody.value))
+        highlightCode(await update(url.value, exampleRequestBody.value))
         break
       }
       case 'DELETE': {
-        successResponseBody.value = highlightCode(await discard(url.value))
+        highlightCode(await discard(url.value))
         break
       }
       default: {
-        successResponseBody.value = highlightCode(await get(url.value))
+        highlightCode(await get(url.value))
         break
       }
     }
@@ -162,13 +151,13 @@ const submit = async (form: FormInstance, fn: () => void) => {
 }
 const highlightCode = (json) => {
   if (json.error) {
-    return json.error.message
+    successResponseBody.value = json.error.message
   } else if (json) {
-    return hljs.lineNumbersValue(
+    successResponseBody.value = hljs.lineNumbersValue(
       hljs.highlightAuto(JSON.stringify(json, null, 4), ['JSON']).value
     )
   } else {
-    return ''
+    successResponseBody.value = ''
   }
 }
 const submitEntitlement = async () => {
@@ -215,7 +204,7 @@ onBeforeRouteUpdate((to) => {
   setRoleForm()
 })
 
-const copyToClipboard = (type: "request" | "response") => {
+const copyToClipboard = () => {
   // Create a temporary text area to hold the content
   const textArea = document.createElement('textarea');
 
@@ -234,20 +223,15 @@ const copyToClipboard = (type: "request" | "response") => {
   textArea.value = rawJson; // Set the text to copy
   document.body.appendChild(textArea); // Append the text area to the DOM
   textArea.select(); // Select the text inside the text area
-  navigator.clipboard.writeText(textArea.value).then(() => {
-    // Show feedback to the user
-    const feedbackMessage = type === "request" ? 'Request copied to clipboard!' : 'Response copied to clipboard!';
-
-    console.log(feedbackMessage);
-    ElNotification({
-      message: feedbackMessage,
-      type: 'success',
-      duration: elMessageDuration
-    });
-  }).catch(err => {
-    console.error('Failed to copy text: ', err);
-  });
+  document.execCommand('copy'); // Execute the copy command
   document.body.removeChild(textArea); // Remove the text area from the DOM
+
+  // Show feedback to the user
+  ElNotification({
+    message: 'Response copied to clipboard!',
+    type: 'success',
+    duration: elMessageDuration
+  });
 };
 
 
@@ -275,14 +259,12 @@ const copyToClipboard = (type: "request" | "response") => {
         placeholder="Request Header (Header1:Value1::Header2:Value2)"
       />
     </div>
-    <div v-show="exampleRequestBody">
-      <p class="header-container">{{ exampleRequestBodyTitle }}:</p>
-      <pre><button @click="copyToClipboard('request')" class="copy-button icon-md-heavy" title="Copy to Clipboard"><i class="material-icons">content_copy</i></button>
-        <code><div id="code" v-html="exampleRequestBody"></div></code></pre>
+    <div class="flex-preview-panel">
+      <input type="text" v-model="exampleRequestBody" />
     </div>
     <div v-show="successResponseBody">
       <p class="header-container">{{ responseHeaderTitle }}:</p>
-      <pre><button @click="copyToClipboard('response')" class="copy-button icon-md-heavy" title="Copy to Clipboard"><i class="material-icons">content_copy</i></button>
+      <pre><button @click="copyToClipboard" class="copy-button icon-md-heavy" title="Copy to Clipboard"><i class="material-icons">content_copy</i></button>
         <code><div id="code" v-html="successResponseBody"></div></code></pre>
     </div>
     <el-form ref="roleFormRef" :model="roleForm">
