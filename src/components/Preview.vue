@@ -442,6 +442,7 @@ li {
   z-index: var(--el-index-normal);
 }
 .json-editor {
+  /* the list of default vars to change can be found here: https://github.com/josdejong/svelte-jsoneditor/blob/main/src/lib/themes/defaults.scss */
   --jse-theme-color: #253047;
   --jse-theme-color-highlight: #4a5c84;
   --jse-font-family-mono: 'Roboto', 'Courier New', monospace;
