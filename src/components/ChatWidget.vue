@@ -33,7 +33,7 @@
   import { inject } from 'vue';
   import { obpApiHostKey } from '@/obp/keys';
   import { getCurrentUser } from '../obp';
-  import { getOpeyJWT } from '@/obp/common-functions'
+  import { getOpeyJWT, getOpeyConsent, answerOpeyConsentChallenge } from '@/obp/common-functions'
   import { storeToRefs } from "pinia";
   import { socket } from '@/socket';
   import { useConnectionStore } from '@/stores/connection';
@@ -80,6 +80,8 @@
         userInput: '',
         sessionId: uuidv4(),
         awaitingConnection: !this.isConnected,
+        awaitingConsentChallengeAnswer: false,
+        consentChallengeAnswer: '',
         isLoading: false,
         obpApiHost: null,
         isLoggedIn: null,
@@ -128,6 +130,20 @@
           });
           
         }
+
+        // try to get a consent token
+        try {
+          token = await getOpeyConsent()
+          this.awaitingConsentChallengeAnswer = true
+        } catch (error) {
+          console.log('Error getting consent for opey from OBP: ', error)
+          this.errorState = true
+          ElMessage({
+            message: 'Error getting consent for opey from OBP',
+            type: 'error'
+          });
+          
+        }
  
         // Establish the WebSocket connection
         console.log('Establishing WebSocket connection');
@@ -143,6 +159,33 @@
         }
       
       },
+      async answerConsentChallenge() {
+        const challengeAnswer = this.consentChallengeAnswer
+        if (!challengeAnswer) {
+          console.error("empty challenge answer")
+          return
+        }
+
+        try {
+          const answerBody = {
+            answer: challengeAnswer
+          }
+          const response = await answerOpeyConsentChallenge(answerBody)
+          if (response.status === 200) {
+            console.log('Consent challenge answered successfully, Consent approved')
+            this.awaitingConsentChallengeAnswer = false
+          } 
+        } catch (error) {
+
+            console.log('Error answering consent challenge: ', error)
+            this.errorState = true
+            ElMessage({
+              message: 'Error answering consent challenge',
+              type: 'error'
+            });
+        }
+      },
+
       async sendMessage() {
         if (this.userInput.trim()) {
           // Message in OpenAI standard format for user message
@@ -269,7 +312,15 @@
           <span>Chat with Opey</span>
           <img alt="Powered by OpenAI" src="@/assets/powered-by-openai-badge-outlined-on-dark.svg" height="32">
         </div>
-        <div v-if="this.isLoggedIn" v-loading="this.awaitingConnection" element-loading-text="Awaiting Connection..." class="chat-messages" ref="messages">
+        <div v-show="this.awaitingConsentChallengeAnswer">
+          <el-input
+            v-model="consentChallengeAnswer"
+            placeholder="Enter the challenge answer"
+          >
+          </el-input>
+          <el-button @click="answerConsentChallenge">Submit</el-button>
+        </div>
+        <div v-if="this.isLoggedIn" v-loading="this.awaitingConnection && !this.awaitingConsentChallengeAnswer" element-loading-text="Awaiting Connection..." class="chat-messages" ref="messages">
           <div v-for="(message, index) in chatMessages" :key="index" :class="['chat-message', message.role]">
             <div v-if="(this.isStreaming)&&(index === this.chatMessages.length -1)">
               <div v-html="renderMarkdown(this.currentMessageSnapshot)"></div>

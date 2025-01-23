@@ -85,6 +85,29 @@ export async function getOpeyJWT() {
   return token
 }
 
+export async function getOpeyConsent() {
+  const response = await axios.post('/api/opey/consent').catch((error) => {
+    if (error.response) {
+      throw new Error(`getOpeyConsent returned an error: ${error.toJSON()}`);
+    } else {
+      throw new Error(`getOpeyConsent returned an error: ${error.message}`);
+    }
+  });
+  const consent = String(response?.data?.consent)
+  return consent
+}
+
+export async function answerOpeyConsentChallenge(answerBody: any) {
+  const response = await axios.post('/api/opey/consent/answer-challenge', answerBody).catch((error) => {
+    if (error.response) {
+      throw new Error(`answerOpeyConsentChallenge returned an error: ${error.toJSON()}`);
+    } else {
+      throw new Error(`answerOpeyConsentChallenge returned an error: ${error.message}`);
+    }
+  });
+  return response
+}
+
 export function clearCacheByName(cacheName: string) {
   if ('caches' in window) {
     caches.delete(cacheName).then(function(success) {
