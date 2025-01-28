@@ -60,7 +60,13 @@ export const useConnectionStore = defineStore("connection", {
      */
     connect(token: string) {
       socket.auth = { token };
-      socket.connect();
+      console.log("connectionStore says: connecting to websocket")
+      try {
+        socket.connect();
+      } catch (error) { 
+        console.error("connectionStore says: error connecting to websocket", error)
+      }
+      
     }
   },
 });
