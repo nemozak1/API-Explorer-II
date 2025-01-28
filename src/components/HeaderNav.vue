@@ -45,7 +45,7 @@ const obpApiHost = ref(import.meta.env.VITE_OBP_API_HOST)
 const obpApiPortalHost = ref(import.meta.env.VITE_OBP_API_PORTAL_HOST)
 const obpApiHybridPost = computed(() => obpApiPortalHost.value ? obpApiPortalHost.value : obpApiHost.value)
 const obpApiManagerHost = ref(import.meta.env.VITE_OBP_API_MANAGER_HOST)
-const isObpApiManagerHost = computed(() => obpApiManagerHost.value ? true : false)
+const hasObpApiManagerHost = computed(() => obpApiManagerHost.value ? true : false)
 const loginUsername = ref('')
 const logoffurl = ref('')
 const obpApiVersions = ref(inject(obpApiActiveVersionsKey)!)
@@ -126,7 +126,7 @@ watchEffect(() => {
       <RouterLink class="router-link" id="header-nav-glossary" to="/glossary">{{
         $t('header.glossary')
       }}</RouterLink>
-      <a v-bind:href="obpApiManagerHost" v-show="isObpApiManagerHost" class="router-link" id="header-nav-api-manager">
+      <a v-bind:href="obpApiManagerHost" v-show="hasObpApiManagerHost" class="router-link" id="header-nav-api-manager">
         {{ $t('header.api_manager') }}
       </a>
       <span class="el-dropdown-link">
