@@ -28,6 +28,7 @@
 <script>
   import Prism from 'prismjs';
   import MarkdownIt from "markdown-it";
+  import axios from 'axios';
   import 'prismjs/themes/prism.css'; // Choose a theme you like
   import { v4 as uuidv4 } from 'uuid';
   import { inject } from 'vue';
@@ -82,6 +83,7 @@
         awaitingConnection: !this.isConnected,
         awaitingConsentChallengeAnswer: false,
         consentChallengeAnswer: '',
+        consentId: '',
         isLoading: false,
         obpApiHost: null,
         isLoggedIn: null,
@@ -118,23 +120,22 @@
       },
       async establishWebSocketConnection() {
         // Get the Opey JWT token
-        let token = ''
-        try {
-          token = await getOpeyJWT()
-        } catch (error) {
-          console.log('Error creating JWT for opey: ', error)
-          this.errorState = true
-          ElMessage({
-            message: 'Error getting Opey JWT token',
-            type: 'error'
-          });
-          
-        }
-
         // try to get a consent token
         try {
-          token = await getOpeyConsent()
-          this.awaitingConsentChallengeAnswer = true
+          const consentResponse = await getOpeyConsent()
+          console.log('Consent response: ', consentResponse)
+          if (consentResponse.status === 200 && consentResponse.data.consent_id) {
+            this.consentId = consentResponse.data.consent_id
+            this.awaitingConsentChallengeAnswer = true
+          } else {
+            console.log('Error getting consent for opey from OBP: ', consentResponse)
+            this.errorState = true
+            ElMessage({
+              message: 'Error getting consent for opey from OBP',
+              type: 'error'
+            });
+          }
+          
         } catch (error) {
           console.log('Error getting consent for opey from OBP: ', error)
           this.errorState = true
@@ -143,19 +144,6 @@
             type: 'error'
           });
           
-        }
- 
-        // Establish the WebSocket connection
-        console.log('Establishing WebSocket connection');
-        try{
-          this.connectionStore.connect(token)
-        } catch (error) {
-          console.log('Error establishing WebSocket connection: ', error)
-          this.errorState = true
-          ElMessage({
-            message: 'Error establishing WebSocket connection',
-            type: 'error'
-          });
         }
       
       },
@@ -167,10 +155,23 @@
         }
 
         try {
-          const answerBody = {
-            answer: challengeAnswer
-          }
-          const response = await answerOpeyConsentChallenge(answerBody)
+          console.log(`Answering consent challenge with: ${challengeAnswer} and consent_id: ${this.consentId}`)
+          
+
+          // send the challenge answer to Opey for approval
+          const response = await axios.post(
+            `${this.chatBotUrl}/auth`,
+            JSON.stringify({"consent_id": this.consentId, "consent_challenge_answer": challengeAnswer}),
+            {
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              withCredentials: true,
+            }
+          )
+          
+          console.log("Consent challenge response: ", response.status, response.headers)
           if (response.status === 200) {
             console.log('Consent challenge answered successfully, Consent approved')
             this.awaitingConsentChallengeAnswer = false

@@ -93,8 +93,7 @@ export async function getOpeyConsent() {
       throw new Error(`getOpeyConsent returned an error: ${error.message}`);
     }
   });
-  const consent = String(response?.data?.consent)
-  return consent
+  return response
 }
 
 export async function answerOpeyConsentChallenge(answerBody: any) {
