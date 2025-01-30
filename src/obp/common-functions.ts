@@ -86,14 +86,16 @@ export async function getOpeyJWT() {
 }
 
 export async function getOpeyConsent() {
-  const response = await axios.post('/api/opey/consent').catch((error) => {
+  await axios.post('/api/opey/consent').catch((error) => {
     if (error.response) {
       throw new Error(`getOpeyConsent returned an error: ${error.toJSON()}`);
     } else {
       throw new Error(`getOpeyConsent returned an error: ${error.message}`);
     }
+  }).then((response) => {
+    console.log(response)
+    return response
   });
-  return response
 }
 
 export async function answerOpeyConsentChallenge(answerBody: any) {

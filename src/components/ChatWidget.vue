@@ -73,13 +73,14 @@
 
       const { isConnected } = storeToRefs(connectionStore);
 
-      return {isStreaming, chatMessages, lastError, currentMessageSnapshot, chatStore, connectionStore, isConnected}
+      return {isStreaming, chatMessages, lastError, currentMessageSnapshot, chatStore, connectionStore}
     },
     data() {
       return {
         isOpen: false,
         userInput: '',
         sessionId: uuidv4(),
+        isConnected: false,
         awaitingConnection: !this.isConnected,
         awaitingConsentChallengeAnswer: false,
         consentChallengeAnswer: '',
@@ -121,6 +122,9 @@
       async establishWebSocketConnection() {
         // Get the Opey JWT token
         // try to get a consent token
+
+        // Check if the user already has a token in the cookies
+
         try {
           const consentResponse = await getOpeyConsent()
           console.log('Consent response: ', consentResponse)
@@ -175,6 +179,12 @@
           if (response.status === 200) {
             console.log('Consent challenge answered successfully, Consent approved')
             this.awaitingConsentChallengeAnswer = false
+            if (response.data.success) {
+              console.log('Consent approved')
+              this.isConnected = true
+            } else {
+              console.log('Consent denied')
+            }
           } 
         } catch (error) {
 
