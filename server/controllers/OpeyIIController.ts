@@ -1,6 +1,6 @@
 import { streamText } from 'ai'
 import axios from 'axios'
-import { Controller, Session, Req, Res, Post } from 'routing-controllers'
+import { Controller, Session, Req, Res, Post, Get } from 'routing-controllers'
 import { Request, Response } from 'express'
 import { Service } from 'typedi'
 import OBPClientService from '../services/OBPClientService'
@@ -16,6 +16,13 @@ export class OpeyController {
         private obpClientService: OBPClientService,
         private opeyClientService: OpeyClientService,
     ) {}
+
+    @Get('/')
+    async getStatus(
+        @Res() response: Response
+    ): Response {
+        return response.status(200).json({status: 'Opey is running'});
+    }
 
     @Post('/consent')
     /**
@@ -112,21 +119,42 @@ export class OpeyController {
         @Req() request: Request,
         @Res() response: Response
     ) {
-        const messages = await request.json()
 
-        console.log(messages)
-        
-        const user_input: UserInput = {
-          "message": messages[-1],
-          "thread_id": uuid6(),
-          "is_tool_call_approval": false
+        let user_input: UserInput
+        try {
+           user_input = {
+            "message": request.body.message,
+            "thread_id": request.body.thread_id,
+            "is_tool_call_approval": request.body.is_tool_call_approval
+          }
+        } catch (error) {
+          console.error("Error in stream endpoint, could not parse into UserInput: ", error)
+          return response.status(500).json({ error: 'Internal Server Error' })
         }
+        
+        
+        
+        try {
+          console.log("Calling OpeyClientService.stream")
+          const stream = await this.opeyClientService.stream(user_input)
+          try{
+            response.setHeader('Content-Type', 'text/event-stream')
+            return stream
+          } catch (error) {
+            console.error("Error in stream endpoint: ", error)
+            return response.status(500).json({ error: 'Internal Server Error' })
+          }
+          
+          
+          
 
-        const stream = await this.opeyClientService.stream(user_input)
+        } catch (error) {
+          console.error("Error in stream endpoint: ", error)
+          return response.status(500).json({ error: 'Internal Server Error' })
+        }
+        
 
-        stream.on('data', (chunk)=>{
-            console.log(chunk)
-        })
+        
 
 
     }

@@ -33,7 +33,7 @@ import * as fs from 'fs'
 import * as jwt from 'jsonwebtoken'
 
 @Service()
-@Controller('/opey')
+@Controller('/opey-old')
 /**
  * Controller class for handling Opey related operations.
  * This used to hold the /chat endpoint, but that endpoint has become obsolete since using websockets. 

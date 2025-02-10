@@ -1,31 +1,19 @@
 import { Service } from 'typedi'
-import axios from 'axios'
-import { UserInput } from '../schema/OpeySchema'
+import { got } from 'got';
+import { UserInput, OpeyConfig, AuthConfig } from '../schema/OpeySchema'
 
 @Service()
 export default class OpeyClientService {
-    private AuthConfig: {
-        consentId: string,
-        opeyJWT: string,
-    }
-    private opeyConfig: {
-        baseUri: string,
-        authConfig: any,
-        paths: {
-            stream: string,
-            invoke: string,
-            approve_tool: string,
-            feedback: string,
-        }
-    }
-    constuctor() {
-        this.AuthConfig = {
+    private authConfig: AuthConfig
+    private opeyConfig: OpeyConfig
+    constructor() {
+        this.authConfig = {
             consentId: '',
             opeyJWT: ''
         }
         this.opeyConfig = {
-            baseUri: process.env.VITE_CHATBOT_URL,
-            authConfig: this.AuthConfig,
+            baseUri: process.env.VITE_CHATBOT_URL? process.env.VITE_CHATBOT_URL : 'http://localhost:5000',
+            authConfig: this.authConfig,
             paths: {
                 stream: '/stream',
                 invoke: '/invoke',
@@ -35,20 +23,28 @@ export default class OpeyClientService {
         }
         
     }
-    async stream(user_input: UserInput) {
-        await axios.post(this.opeyConfig.paths.stream, user_input, {
+    async stream(user_input: UserInput): Promise<any> {
 
-            headers: {
-                "Authorization": `Bearer ${this.opeyConfig.authConfig.opeyJWT}`
-            },
-            responseType: 'stream'
+        try {
+            console.log(`Streaming to Opey: ${JSON.stringify(user_input)}`) //DEBUG
+            const stream = got.stream.post(`${this.opeyConfig.baseUri}${this.opeyConfig.paths.stream}`, {
 
-        }).catch((error) => {
-            console.error(error)
+                headers: {
+                    "Authorization": `Bearer ${this.opeyConfig.authConfig.opeyJWT}`
+                },
+                body: JSON.stringify(user_input),
+    
+            });
+            console.log(`Response from Opey: ${stream}`) //DEBUG
 
-        }).then((response) => {
-            const stream = response.data
-            return stream
-        })
+            //response.data.on('data', (chunk) => {console.log(`Recieved chunk: ${chunk.toString()}`)});
+            return stream;
+        }
+        catch (error) {
+            throw new Error(`Error streaming to Opey: ${error}`)
+        }
+        
+
+        
     }
 }
