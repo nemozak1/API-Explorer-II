@@ -5,6 +5,10 @@ export class UserInput {
     is_tool_call_approval: boolean;
 }
 
+export class StreamInput extends UserInput {
+    stream_tokens: boolean;
+}
+
 export type OpeyConfig = {
     baseUri: string,
     authConfig: any,

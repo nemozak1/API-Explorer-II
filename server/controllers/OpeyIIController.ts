@@ -6,6 +6,7 @@ import { Service } from 'typedi'
 import OBPClientService from '../services/OBPClientService'
 import OpeyClientService from '../services/OpeyClientService'
 import { v6 as uuid6 } from 'uuid';
+import { Transform } from 'stream'
 import { UserInput } from '../schema/OpeySchema'
 
 @Service()
@@ -133,29 +134,44 @@ export class OpeyController {
         }
         
         
+        console.log("Calling OpeyClientService.stream")
+
+        const streamMiddlewareTransform = new Transform({
+          transform(chunk, encoding, callback) {
+            console.log(`Logged Chunk: ${chunk}`)
+            this.push(chunk);
+        
+            callback();
+          }
+        })
         
         try {
-          console.log("Calling OpeyClientService.stream")
-          const stream = await this.opeyClientService.stream(user_input)
-          try{
-            response.setHeader('Content-Type', 'text/event-stream')
-            return stream
-          } catch (error) {
-            console.error("Error in stream endpoint: ", error)
-            return response.status(500).json({ error: 'Internal Server Error' })
-          }
-          
-          
-          
+          const nodeStream = await this.opeyClientService.stream(user_input)
+          console.log(`Stream received from OpeyClientService.stream: ${nodeStream.readable}`)
+          nodeStream.pipe(streamMiddlewareTransform).pipe(response)
 
+          response.status(200)
+          response.setHeader('Content-Type', 'text/event-stream')
+          response.setHeader('Cache-Control', 'no-cache')
+          response.setHeader('Connection', 'keep-alive')
+
+          nodeStream.on('data', (chunk) => {
+            const data = chunk.toString()
+            console.log(`data: ${data}`)
+            response.write(`data: ${data}\n\n`)
+          })
+          nodeStream.on('end', () => {
+            console.log('Stream ended')
+            response.end()
+          })
+          nodeStream.on('error', (error) => {
+            console.error(error)
+            response.write(`data: Error reading stream\n\n`)
+            response.end()
+          })
         } catch (error) {
-          console.error("Error in stream endpoint: ", error)
-          return response.status(500).json({ error: 'Internal Server Error' })
+          console.error(error)
+          response.status(500).json({ error: 'Internal Server Error' })
         }
-        
-
-        
-
-
     }
 }
