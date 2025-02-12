@@ -23,6 +23,28 @@ describe('GET /api/opey', () => {
     });
 });
 
+describe('GET /api/opey/invoke', () => {
+    let response: Response;
+
+    let userInput: UserInput = {
+        message: "Hello Opey",
+        thread_id: uuidv4(),
+        is_tool_call_approval: false
+    }
+    
+    it('Should return 200', async () => {
+        const response = await request(app)
+            .post("/api/opey/invoke")
+            .send(userInput)
+            .set('Content-Type', 'application/json')
+            .then(response => {
+                console.log(`Response: ${response.body}`)
+                expect(response.status).toBe(200);
+            })
+            
+        
+    });
+})
 
 describe('POST /api/opey/stream', () => {
 

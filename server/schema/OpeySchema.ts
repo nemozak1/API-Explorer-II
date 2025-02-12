@@ -9,15 +9,14 @@ export class StreamInput extends UserInput {
     stream_tokens: boolean;
 }
 
+export type OpeyPaths = {
+    [key: string]: string;
+}
+
 export type OpeyConfig = {
     baseUri: string,
     authConfig: any,
-    paths: {
-        stream: string,
-        invoke: string,
-        approve_tool: string,
-        feedback: string,
-    }
+    paths: OpeyPaths,
 }
 
 export type AuthConfig = {

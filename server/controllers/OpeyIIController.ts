@@ -22,7 +22,110 @@ export class OpeyController {
     async getStatus(
         @Res() response: Response
     ): Response {
-        return response.status(200).json({status: 'Opey is running'});
+
+        try {
+          const opeyStatus = await this.opeyClientService.getOpeyStatus()
+          console.log("Opey status: ", opeyStatus)
+          return response.status(200).json({status: 'Opey is running'});
+
+        } catch (error) {
+          console.error("Error in /opey endpoint: ", error);
+          return response.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        
+    }
+
+    @Post('/stream')
+
+    async streamOpey(
+        @Session() session: any,
+        @Req() request: Request,
+        @Res() response: Response
+    ) {
+
+        let user_input: UserInput
+        try {
+           user_input = {
+            "message": request.body.message,
+            "thread_id": request.body.thread_id,
+            "is_tool_call_approval": request.body.is_tool_call_approval
+          }
+        } catch (error) {
+          console.error("Error in stream endpoint, could not parse into UserInput: ", error)
+          return response.status(500).json({ error: 'Internal Server Error' })
+        }
+        
+        
+        console.log("Calling OpeyClientService.stream")
+
+        const streamMiddlewareTransform = new Transform({
+          transform(chunk, encoding, callback) {
+            console.log(`Logged Chunk: ${chunk}`)
+            this.push(chunk);
+        
+            callback();
+          }
+        })
+        
+        try {
+          const nodeStream = await this.opeyClientService.stream(user_input)
+          console.log(`Stream received from OpeyClientService.stream: ${nodeStream.readable}`)
+          nodeStream.pipe(streamMiddlewareTransform).pipe(response)
+
+          response.status(200)
+          response.setHeader('Content-Type', 'text/event-stream')
+          response.setHeader('Cache-Control', 'no-cache')
+          response.setHeader('Connection', 'keep-alive')
+
+          // nodeStream.on('data', (chunk) => {
+          //   const data = chunk.toString()
+          //   console.log(`data: ${data}`)
+          //   response.write(`data: ${data}\n\n`)
+          // })
+          // nodeStream.on('end', () => {
+          //   console.log('Stream ended')
+          //   response.end()
+          // })
+          // nodeStream.on('error', (error) => {
+          //   console.error(error)
+          //   response.write(`data: Error reading stream\n\n`)
+          //   response.end()
+          // })
+        } catch (error) {
+          console.error(error)
+          response.status(500).json({ error: 'Internal Server Error' })
+        }
+    }
+
+    @Post('/invoke')
+    async invokeOpey(
+        @Session() session: any,
+        @Req() request: Request,
+        @Res() response: Response
+    ): Response {
+
+        let user_input: UserInput
+        try {
+          user_input = {
+            "message": request.body.message,
+            "thread_id": request.body.thread_id,
+            "is_tool_call_approval": request.body.is_tool_call_approval
+          }
+        } catch (error) {
+          console.error("Error in stream endpoint, could not parse into UserInput: ", error)
+          return response.status(500).json({ error: 'Internal Server Error' })
+        }
+
+        try {
+          const opey_response = await this.opeyClientService.invoke(user_input)
+
+          console.log("Opey response: ", opey_response)
+          return response.status(200).json(opey_response)
+        } catch (error) {
+          console.error(error)
+          return response.status(500).json({ error: 'Internal Server Error' })
+        }
     }
 
     @Post('/consent')
@@ -113,65 +216,5 @@ export class OpeyController {
       
     }
 
-    @Post('/stream')
-
-    async streamOpey(
-        @Session() session: any,
-        @Req() request: Request,
-        @Res() response: Response
-    ) {
-
-        let user_input: UserInput
-        try {
-           user_input = {
-            "message": request.body.message,
-            "thread_id": request.body.thread_id,
-            "is_tool_call_approval": request.body.is_tool_call_approval
-          }
-        } catch (error) {
-          console.error("Error in stream endpoint, could not parse into UserInput: ", error)
-          return response.status(500).json({ error: 'Internal Server Error' })
-        }
-        
-        
-        console.log("Calling OpeyClientService.stream")
-
-        const streamMiddlewareTransform = new Transform({
-          transform(chunk, encoding, callback) {
-            console.log(`Logged Chunk: ${chunk}`)
-            this.push(chunk);
-        
-            callback();
-          }
-        })
-        
-        try {
-          const nodeStream = await this.opeyClientService.stream(user_input)
-          console.log(`Stream received from OpeyClientService.stream: ${nodeStream.readable}`)
-          nodeStream.pipe(streamMiddlewareTransform).pipe(response)
-
-          response.status(200)
-          response.setHeader('Content-Type', 'text/event-stream')
-          response.setHeader('Cache-Control', 'no-cache')
-          response.setHeader('Connection', 'keep-alive')
-
-          nodeStream.on('data', (chunk) => {
-            const data = chunk.toString()
-            console.log(`data: ${data}`)
-            response.write(`data: ${data}\n\n`)
-          })
-          nodeStream.on('end', () => {
-            console.log('Stream ended')
-            response.end()
-          })
-          nodeStream.on('error', (error) => {
-            console.error(error)
-            response.write(`data: Error reading stream\n\n`)
-            response.end()
-          })
-        } catch (error) {
-          console.error(error)
-          response.status(500).json({ error: 'Internal Server Error' })
-        }
-    }
+    
 }
