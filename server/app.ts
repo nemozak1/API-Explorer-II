@@ -138,9 +138,11 @@ console.log('Execution continues with commitId:', commitId);
 
 // Error Handling to Shut Down the App
 server.on('error', (err) => {
+  redisClient.disconnect();
   if (err.code === 'EADDRINUSE') {
     console.error(`Port ${port} is already in use.`);
-    process.exit(1); // Shut down the app
+    process.exit(1);
+     // Shut down the app
   } else {
     console.error('An error occurred:', err);
   }

@@ -28,12 +28,13 @@
 <script>
   import Prism from 'prismjs';
   import MarkdownIt from "markdown-it";
+  import axios from 'axios';
   import 'prismjs/themes/prism.css'; // Choose a theme you like
   import { v4 as uuidv4 } from 'uuid';
   import { inject } from 'vue';
   import { obpApiHostKey } from '@/obp/keys';
   import { getCurrentUser } from '../obp';
-  import { getOpeyJWT } from '@/obp/common-functions'
+  import { getOpeyJWT, getOpeyConsent, answerOpeyConsentChallenge } from '@/obp/common-functions'
   import { storeToRefs } from "pinia";
   import { socket } from '@/socket';
   import { useConnectionStore } from '@/stores/connection';
@@ -72,14 +73,18 @@
 
       const { isConnected } = storeToRefs(connectionStore);
 
-      return {isStreaming, chatMessages, lastError, currentMessageSnapshot, chatStore, connectionStore, isConnected}
+      return {isStreaming, chatMessages, lastError, currentMessageSnapshot, chatStore, connectionStore}
     },
     data() {
       return {
         isOpen: false,
         userInput: '',
         sessionId: uuidv4(),
+        isConnected: false,
         awaitingConnection: !this.isConnected,
+        awaitingConsentChallengeAnswer: false,
+        consentChallengeAnswer: '',
+        consentId: '',
         isLoading: false,
         obpApiHost: null,
         isLoggedIn: null,
@@ -116,33 +121,82 @@
       },
       async establishWebSocketConnection() {
         // Get the Opey JWT token
-        let token = ''
+        // try to get a consent token
+
+        // Check if the user already has a token in the cookies
+
         try {
-          token = await getOpeyJWT()
+          const consentResponse = await getOpeyConsent()
+          console.log('Consent response: ', consentResponse)
+          if (consentResponse.status === 200 && consentResponse.data.consent_id) {
+            this.consentId = consentResponse.data.consent_id
+            this.awaitingConsentChallengeAnswer = true
+          } else {
+            console.log('Error getting consent for opey from OBP: ', consentResponse)
+            this.errorState = true
+            ElMessage({
+              message: 'Error getting consent for opey from OBP',
+              type: 'error'
+            });
+          }
+          
         } catch (error) {
-          console.log('Error creating JWT for opey: ', error)
+          console.log('Error getting consent for opey from OBP: ', error)
           this.errorState = true
           ElMessage({
-            message: 'Error getting Opey JWT token',
+            message: 'Error getting consent for opey from OBP',
             type: 'error'
           });
           
         }
- 
-        // Establish the WebSocket connection
-        console.log('Establishing WebSocket connection');
-        try{
-          this.connectionStore.connect(token)
-        } catch (error) {
-          console.log('Error establishing WebSocket connection: ', error)
-          this.errorState = true
-          ElMessage({
-            message: 'Error establishing WebSocket connection',
-            type: 'error'
-          });
-        }
       
       },
+      async answerConsentChallenge() {
+        const challengeAnswer = this.consentChallengeAnswer
+        if (!challengeAnswer) {
+          console.error("empty challenge answer")
+          return
+        }
+
+        try {
+          console.log(`Answering consent challenge with: ${challengeAnswer} and consent_id: ${this.consentId}`)
+          
+
+          // send the challenge answer to Opey for approval
+          const response = await axios.post(
+            `${this.chatBotUrl}/auth`,
+            JSON.stringify({"consent_id": this.consentId, "consent_challenge_answer": challengeAnswer}),
+            {
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              withCredentials: true,
+            }
+          )
+          
+          console.log("Consent challenge response: ", response.status, response.headers)
+          if (response.status === 200) {
+            console.log('Consent challenge answered successfully, Consent approved')
+            this.awaitingConsentChallengeAnswer = false
+            if (response.data.success) {
+              console.log('Consent approved')
+              this.isConnected = true
+            } else {
+              console.log('Consent denied')
+            }
+          } 
+        } catch (error) {
+
+            console.log('Error answering consent challenge: ', error)
+            this.errorState = true
+            ElMessage({
+              message: 'Error answering consent challenge',
+              type: 'error'
+            });
+        }
+      },
+
       async sendMessage() {
         if (this.userInput.trim()) {
           // Message in OpenAI standard format for user message
@@ -269,7 +323,15 @@
           <span>Chat with Opey</span>
           <img alt="Powered by OpenAI" src="@/assets/powered-by-openai-badge-outlined-on-dark.svg" height="32">
         </div>
-        <div v-if="this.isLoggedIn" v-loading="this.awaitingConnection" element-loading-text="Awaiting Connection..." class="chat-messages" ref="messages">
+        <div v-show="this.awaitingConsentChallengeAnswer">
+          <el-input
+            v-model="consentChallengeAnswer"
+            placeholder="Enter the challenge answer"
+          >
+          </el-input>
+          <el-button @click="answerConsentChallenge">Submit</el-button>
+        </div>
+        <div v-if="this.isLoggedIn" v-loading="this.awaitingConnection && !this.awaitingConsentChallengeAnswer" element-loading-text="Awaiting Connection..." class="chat-messages" ref="messages">
           <div v-for="(message, index) in chatMessages" :key="index" :class="['chat-message', message.role]">
             <div v-if="(this.isStreaming)&&(index === this.chatMessages.length -1)">
               <div v-html="renderMarkdown(this.currentMessageSnapshot)"></div>
