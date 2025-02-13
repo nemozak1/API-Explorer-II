@@ -284,11 +284,8 @@ const onError = (error) => {
         placeholder="Request Header (Header1:Value1::Header2:Value2)"
       />
     </div>
-    <p v-show="exampleRequestBody" class="header-container">{{ exampleBodyTitle }}:</p>
-    <div class="flex-preview-panel" v-show="exampleRequestBody">
-      <!-- <textarea v-model="exampleRequestBody" rows="8" cols="40"></textarea> -->
-      <!-- <input type="text" v-model="exampleRequestBody" /> -->
-      <!-- <pre>{{ JSON.stringify(exampleRequestBody, null, 2) }}</pre> -->
+    <div class="json-editor-container" v-show="exampleRequestBody">
+      <p v-show="exampleRequestBody" class="header-container request-body-header">{{ exampleBodyTitle }}:</p>
       <div class="json-editor jse-theme-dark">
         <JsonEditorVue
           v-model="exampleRequestBody"
@@ -441,11 +438,39 @@ li {
   background-color: var(--el-border-color-light);
   z-index: var(--el-index-normal);
 }
+.request-body-header {
+  background-color: #010B20;
+  margin-right: auto;
+  margin-top: 0;
+}
+.json-editor-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: -25px;
+  margin-right: -25px;
+  background-color: #010B20;
+  padding: 25px 25px 25px 25px;
+}
 .json-editor {
   /* the list of default vars to change can be found here: https://github.com/josdejong/svelte-jsoneditor/blob/main/src/lib/themes/defaults.scss */
-  --jse-theme-color: #253047;
-  --jse-theme-color-highlight: #4a5c84;
+  width: 100%;
+  margin-left: -5px;
+  margin-right: -5px;
+  --jse-theme-color: #010B20;
+  --jse-key-color: #ffffff;
+  --jse-value-color: #6a8759;
+  --jse-value-color-string: #6a8759;
+  --jse-background-color: #010B20;
+  --jse-context-menu-background: #010B20;
+  --jse-theme-color-highlight: #010B20;
+  --jse-context-menu-pointer-hover-background: #253047;
+  --jse-context-menu-background-highlight: #253047;
+  --jse-context-menu-pointer-background: #253047;
+  --jse-context-menu-tip-background: #253047;
+  --jse-modal-background: #010B20;
+  --jse-panel-background: #010B20;
   --jse-font-family-mono: 'Roboto', 'Courier New', monospace;
+  --jse-main-border: none;
 }
 .flex-preview-panel {
   display: flex;
