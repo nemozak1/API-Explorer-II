@@ -297,10 +297,14 @@ const onError = (error) => {
       </div>
       
     </div>
-    <div v-show="successResponseBody">
-      <p class="header-container">{{ responseHeaderTitle }}:</p>
-      <pre><button @click="copyToClipboard" class="copy-button icon-md-heavy" title="Copy to Clipboard"><i class="material-icons">content_copy</i></button>
-        <code><div id="code" v-html="successResponseBody"></div></code></pre>
+    <div v-show="successResponseBody" class="success-response-container">
+      <div class="success-response-header-container">
+        <p class="header-container success-response-header">{{ responseHeaderTitle }}:</p>
+        <button @click="copyToClipboard" class="copy-button icon-md-heavy" title="Copy to Clipboard"><i class="material-icons">content_copy</i></button>
+      </div>
+      <pre>
+        <code><div id="code" v-html="successResponseBody"></div></code>
+      </pre>
     </div>
     <el-form ref="roleFormRef" :model="roleForm">
       <div v-show="showRequiredRoles">
@@ -393,12 +397,11 @@ span {
   font-size: 28px;
 }
 pre {
-  margin-left: -25px;
-  margin-right: -25px;
-  padding: 30px 30px 10px 30px;
+  padding: 0px 30px 0px 30px;
   max-height: 340px;
   background-color: #253047;
   font-size: 14px;
+  margin: 0;
   font-family: 'Roboto';
   font-weight: normal;
 }
@@ -522,6 +525,22 @@ li {
 
 #conector-method-link {
   color: white !important;
+}
+.success-response-header-container {
+  margin-left: 25px;
+  margin-right: 25px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: #253047;
+}
+.success-response-header {
+  margin-top: 25px;
+}
+.success-response-container{
+  background-color: #253047;
+  margin-right: -25px;
+  margin-left: -25px;
 }
 .copy-button {
   background: none;
