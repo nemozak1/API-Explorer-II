@@ -1,6 +1,5 @@
 import app, { instance } from '../server/app';
 import request from 'supertest';
-import fetch from 'node-fetch';
 import http from 'node:http';
 import { UserInput } from '../server/schema/OpeySchema';
 import {v4 as uuidv4} from 'uuid';

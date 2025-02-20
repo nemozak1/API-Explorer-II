@@ -68,12 +68,12 @@ export class OpeyController {
           }
         })
 
-        let nodeStream: NodeJS.ReadableStream | null = null
+        let stream: ReadableStream | null = null
         
         try {
           // Read stream from OpeyClientService
-          nodeStream = await this.opeyClientService.stream(user_input)
-          console.debug(`Stream received readable: ${nodeStream.readable}`)
+          stream = await this.opeyClientService.stream(user_input)
+          console.debug(`Stream received readable: ${stream}`)
           
         } catch (error) {
           console.error("Error reading stream: ", error)
@@ -81,7 +81,7 @@ export class OpeyController {
           return
         }
 
-        if (!nodeStream || !nodeStream.readable) {
+        if (!stream) {
           console.error("Stream is not readable")
           response.status(500).json({ error: 'Internal Server Error' })
           return
@@ -99,23 +99,22 @@ export class OpeyController {
           response.setHeader('Connection', 'keep-alive')
 
           let data: any[] = []
+          
+          const streamReader = stream.getReader()
+          console.log("Got stream reader: ", streamReader)
 
-          nodeStream.on('data', (chunk) => {
-            const bufferChunk = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-            data.push(bufferChunk);
-            response.write(`data: ${chunk.toString()}\n\n`)
-          })
-          nodeStream.on('end', () => {
-            //console.log('Stream ended')
-            const totalData = Buffer.concat(data)
-            response.write(totalData)
-            response.end()
-          })
-          nodeStream.on('error', (error) => {
-            console.error(error)
-            response.write(`data: Error reading stream\n\n`)
-            response.end()
-          })
+          streamReader
+            .read()
+            .then(function processText({ done, value }) {
+              if (done) {
+                console.log("Stream done")
+                return response.status(200).json(data)
+              }
+              console.log("Stream value: ", value)
+              data.push(value)
+              response.write(`data: ${value}\n\n`)
+            })
+
         } catch (error) {
           console.error("Error writing data: ", error)
           response.status(500).json({ error: 'Internal Server Error' })
