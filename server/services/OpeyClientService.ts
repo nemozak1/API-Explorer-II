@@ -1,5 +1,7 @@
 import { Service } from 'typedi'
 import { UserInput, StreamInput, OpeyConfig, AuthConfig } from '../schema/OpeySchema'
+import { Readable } from "stream"
+import fetch from 'node-fetch'
 
 @Service()
 export default class OpeyClientService {
@@ -46,7 +48,7 @@ export default class OpeyClientService {
         }
     }
 
-    async stream(user_input: UserInput): Promise<ReadableStream> {
+    async stream(user_input: UserInput): Promise<any> {
         // Endpoint to post a message to Opey and stream the response tokens/messages
         try {
 
@@ -68,6 +70,9 @@ export default class OpeyClientService {
             if (!response.body) {
                 throw new Error("No response body")
             }
+
+            console.log("Got response body: ", response.body) //DEBUG
+
             return response.body
         }
         catch (error) {
