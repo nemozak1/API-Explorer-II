@@ -9,8 +9,10 @@ declare module 'vue' {
   export interface GlobalComponents {
     ChatWidget: typeof import('./src/components/ChatWidget.vue')['default']
     ChatWidgetII: typeof import('./src/components/ChatWidgetII.vue')['default']
+    ChatWidgetOld: typeof import('./src/components/ChatWidgetOld.vue')['default']
     Collections: typeof import('./src/components/Collections.vue')['default']
     Content: typeof import('./src/components/Content.vue')['default']
+    ElAffix: typeof import('element-plus/es')['ElAffix']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElBacktop: typeof import('element-plus/es')['ElBacktop']

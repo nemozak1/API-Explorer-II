@@ -38,6 +38,15 @@
     "@ai-sdk/provider-utils" "2.1.9"
     zod-to-json-schema "^3.24.1"
 
+"@ai-sdk/vue@^1.1.18":
+  version "1.1.18"
+  resolved "https://registry.npmjs.org/@ai-sdk/vue/-/vue-1.1.18.tgz"
+  integrity sha512-z6LG0p8kljLAuSPUqbT5dYEQ/CTCZEtN8Ows86TB7EPvrXOHRWLAoFIf1nyS2JlzmZK216tPYLiNHCifsBt6LA==
+  dependencies:
+    "@ai-sdk/provider-utils" "2.1.9"
+    "@ai-sdk/ui-utils" "1.1.15"
+    swrv "^1.0.4"
+
 "@ampproject/remapping@^2.2.0", "@ampproject/remapping@^2.3.0":
   version "2.3.0"
   resolved "https://registry.npmjs.org/@ampproject/remapping/-/remapping-2.3.0.tgz"
@@ -6698,6 +6707,11 @@ swr@^2.2.5:
     dequal "^2.0.3"
     use-sync-external-store "^1.4.0"
 
+swrv@^1.0.4:
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/swrv/-/swrv-1.1.0.tgz"
+  integrity sha512-pjllRDr2s0iTwiE5Isvip51dZGR7GjLH1gCSVyE8bQnbAx6xackXsFdojau+1O5u98yHF5V73HQGOFxKUXO9gQ==
+
 symbol-tree@^3.2.4:
   version "3.2.4"
   resolved "https://registry.npmjs.org/symbol-tree/-/symbol-tree-3.2.4.tgz"
@@ -7273,7 +7287,7 @@ vue-tsc@^2.0.0:
     "@volar/typescript" "~2.4.11"
     "@vue/language-core" "2.2.0"
 
-"vue@^2.6.14 || ^3.5.11", vue@^3, vue@^3.0.0, "vue@^3.0.0-0 || ^2.6.0", vue@^3.2.0, vue@^3.2.25, vue@^3.5.1, "vue@2 || 3", vue@2||3, vue@3.5.13:
+"vue@^2.6.14 || ^3.5.11", vue@^3, vue@^3.0.0, "vue@^3.0.0-0 || ^2.6.0", vue@^3.2.0, vue@^3.2.25, vue@^3.3.4, vue@^3.5.1, "vue@>=3.2.26 < 4", "vue@2 || 3", vue@2||3, vue@3.5.13:
   version "3.5.13"
   resolved "https://registry.npmjs.org/vue/-/vue-3.5.13.tgz"
   integrity sha512-wmeiSMxkZCSc+PM2w2VRsOYAZC8GdipNFRTsLSfodVqI9mbejKeXEGr8SckuLnrQPGe3oJN5c3K0vpoU9q/wCQ==
