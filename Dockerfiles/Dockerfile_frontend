@@ -16,6 +16,17 @@ COPY Dockerfiles/go.mod ./
 RUN go  build -v -o /usr/src/app/prestart
 
 FROM registry.access.redhat.com/ubi9/nginx-120
+
+ENV VITE_OBP_LOGO_URL=https://static.openbankproject.com/images/obp_logo.png \
+    VITE_OBP_API_VERSION='v5.1.0' \
+    VITE_OBP_LINKS_COLOR='#39455f' \
+    VITE_OBP_HEADER_LINKS_COLOR='#52b165' \
+    VITE_OBP_HEADER_LINKS_HOVER_COLOR='#39455f' \
+    VITE_OBP_HEADER_LINKS_BACKGROUND_COLOR='#eef0f4' \
+    VITE_OBP_API_DEFAULT_RESOURCE_DOC_VERSION=OBPv5.1.0 \
+    VITE_CHATBOT_ENABLED=false \
+    VITE_SHOW_API_MANAGER_BUTTON=false
+
 USER 0
 RUN dnf update -y
 RUN chown -R 1001 /var/log/nginx

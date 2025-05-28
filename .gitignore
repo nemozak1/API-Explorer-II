@@ -45,6 +45,11 @@ private_key.pem
 public_key.pem
 ./server/cert/*
 
+#playwright
+playwright-report/
+.auth/
+test-results/
+__snapshots__/
 
 .vite/deps
 __snapshots__/

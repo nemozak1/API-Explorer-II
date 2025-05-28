@@ -178,7 +178,7 @@ export const useChat = defineStore('chat', {
                 }
 
             } catch (error) {
-                console.error('Error creating session:', error);
+                throw new Error(`Failed to create Opey session: ${error}`);
             }
         },
 

@@ -28,14 +28,26 @@
 <script setup lang="ts">
 import SearchNav from '../components/SearchNav.vue'
 import Menu from '../components/Menu.vue'
+import AutoLogout from '../components/AutoLogout.vue'
 import ChatWidget from '../components/ChatWidget.vue'
-import Collections from '../components/Collections.vue'
-import { inject } from 'vue'
+import { onMounted, ref } from 'vue'
+import {  getCurrentUser } from '../obp'
+
+const isLoggedIn = ref(false);
+
+onMounted(async () => {
+  const currentUser = await getCurrentUser()
+  const currentResponseKeys = Object.keys(currentUser)
+  isLoggedIn.value = currentResponseKeys.includes('username')
+})
+
 
 const isChatbotEnabled = import.meta.env.VITE_CHATBOT_ENABLED === 'true'
 </script>
 
 <template>
+
+  <AutoLogout v-if=isLoggedIn /> 
   <el-container class="root">
     <el-aside class="search-nav" width="20%">
       <!--Left-->
@@ -51,14 +63,14 @@ const isChatbotEnabled = import.meta.env.VITE_CHATBOT_ENABLED === 'true'
         </el-header>
         <el-container class="middle">
           <el-aside class="summary" width="50%">
-            <!--Middle -->
             <RouterView name="body" />
           </el-aside>
-          <el-aside class="preview" width="50%">
+          <el-main class="preview">
             <!--right -->
             <RouterView class="preview" name="preview" />
-          </el-aside>
+          </el-main>
         </el-container>
+
         <!--<el-footer> -->
         <!--Bottom -->
         <!--Footer
@@ -71,19 +83,29 @@ const isChatbotEnabled = import.meta.env.VITE_CHATBOT_ENABLED === 'true'
 
 <style>
 .root {
-  min-height: 100vh;
-  overflow: unset;
-}
-.middle {
-  max-height: 95vh;
+  height: 100%;
+  /* min-height: 100vh; */
 }
 .summary {
-  max-height: 95vh;
+  max-height: 100%;
+}
+.main {
+  height: 100%;
+  overflow: hidden;
+}
+.search-nav {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+.middle {
+  height: 100%;
+  overflow: hidden;
 }
 .preview {
   color: white;
   background-color: #151d30;
-  max-height: 100vh;
+  max-height: 100%;
 }
 .collections {
   margin-left: -20px;

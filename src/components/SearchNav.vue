@@ -203,43 +203,66 @@ const searchEvent = (value) => {
 </script>
 
 <template>
-  <el-row>
-    <el-col :span="24">
-      <el-input v-model="form.search" placeholder="Search" :prefix-icon="Search" @input="searchEvent" />
-    </el-col>
-  </el-row>
-  <el-collapse v-model="activeKeys">
-    <el-collapse-item title="My Collections" v-show="showMyCollections" name="my-collections">
-      <el-collapse-item v-for="(api, key) of apiCollections" :key="key" :title="api.api_collection_name"
-        :name="api.api_collection_name" class="child-collapse">
-        <div class="el-tabs--right">
-          <div v-for="(value, key) of apiCollectionsEndpoint[api.api_collection_name]" :key="key" class="api-router-tab"
-            @click="setActive">
-            <RouterLink :to="{ name: 'api', params: { id: value }, query: { version: selectedVersion } }" :id="value"
-              active-class="active-api-router-link" class="api-router-link">{{ operationIdTitle[value] }}</RouterLink>
+  <el-container class="search-nav-container">
+    <el-header class="search-nav-search-bar">
+      <el-col :span="24">
+        <el-input v-model="form.search" placeholder="Search" :prefix-icon="Search" @input="searchEvent" />
+      </el-col>
+    </el-header>
+    <el-main>
+      <el-collapse v-model="activeKeys" class="search-nav-collapse">
+        <el-collapse-item title="My Collections" v-show="showMyCollections" name="my-collections">
+          <el-collapse-item v-for="(api, key) of apiCollections" :key="key" :title="api.api_collection_name"
+            :name="api.api_collection_name" class="child-collapse">
+            <div class="el-tabs--right">
+              <div v-for="(value, key) of apiCollectionsEndpoint[api.api_collection_name]" :key="key" class="api-router-tab"
+                @click="setActive">
+                <RouterLink :to="{ name: 'api', params: { id: value }, query: { version: selectedVersion } }" :id="value"
+                  active-class="active-api-router-link" class="api-router-link">{{ operationIdTitle[value] }}</RouterLink>
+              </div>
+            </div>
+          </el-collapse-item>
+        </el-collapse-item>
+        <el-collapse-item v-for="key in sortedKeys" :title="key" :key="key" :name="key">
+          <div class="el-tabs--right">
+            <div v-for="(value, key) of sortLinks(groups[key])" :key="value" class="api-router-tab" @click="setActive">
+              <RouterLink active-class="active-api-router-link" class="api-router-link" :id="value"
+                :to="{ name: 'api', params: { id: value }, query: { version: selectedVersion } }">{{ key }}</RouterLink>
+            </div>
           </div>
-        </div>
-      </el-collapse-item>
-    </el-collapse-item>
-    <el-collapse-item v-for="key in sortedKeys" :title="key" :key="key" :name="key">
-      <div class="el-tabs--right">
-        <div v-for="(value, key) of sortLinks(groups[key])" :key="value" class="api-router-tab" @click="setActive">
-          <RouterLink active-class="active-api-router-link" class="api-router-link" :id="value"
-            :to="{ name: 'api', params: { id: value }, query: { version: selectedVersion } }">{{ key }}</RouterLink>
-        </div>
-      </div>
-    </el-collapse-item>
-  </el-collapse>
+        </el-collapse-item>
+      </el-collapse>
+    </el-main>
+  </el-container>
+  
 </template>
 
 <style scoped>
+.search-nav-container {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  padding: 0;
+}
 .search-nav {
   background-color: #f8f9fb;
-  padding: 8px;
+  max-height: 100%;
+  padding-right: 0;
   border-right: solid 1px var(--el-menu-border-color);
-  overflow: unset !important;
+  
 }
-
+.search-nav-collapse {
+  height: 100%;
+  max-height: 99%;
+  margin-right: -10px;
+  width: 100%;
+  overflow-x: hidden;
+  min-height: unset;
+}
+.search-nav-search-bar {
+  box-shadow: rgba(0, 0, 0, 0.40) 0px 25px 50px -20px;
+  height: auto;
+}
 .api-router-link {
   width: 100%;
   margin-left: 15px;

@@ -264,10 +264,16 @@ const onError = (error) => {
 
 <template>
   <main>
-    <el-form ref="requestFormRef" :model="requestForm">
+    <el-form ref="requestFormRef" :model="requestForm" @submit.prevent>
       <el-form-item prop="url">
         <div class="flex-request-preview-panel">
-          <input type="text" v-model="url" :set="(requestForm.url = url)" id="search-input" />
+          <input 
+            type="text" 
+            v-model="url" 
+            :set="(requestForm.url = url)" 
+            id="search-input" 
+            @keyup.enter="submit(requestFormRef, submitRequest)"
+          />
           <el-button
             :type="type"
             id="search-button"
@@ -290,9 +296,10 @@ const onError = (error) => {
         <JsonEditorVue
           v-model="exampleRequestBody"
           :stringified="true"
-          :mode="Mode.tree"
+          :mode="Mode.text"
           v-bind="{/* local props & attrs */}"
           :onChange="onJsonEditorChange"
+          :mainMenuBar="false"
         />
       </div>
       

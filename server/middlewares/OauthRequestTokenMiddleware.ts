@@ -39,6 +39,13 @@ export default class OauthRequestTokenMiddleware implements ExpressMiddlewareInt
     console.debug('process.env.VITE_OBP_API_PORTAL_HOST:', process.env.VITE_OBP_API_PORTAL_HOST)
     const oauthService = this.oauthInjectedService
     const consumer = oauthService.getConsumer()
+    const redirectPage = request.query.redirect
+    const session = request.session
+
+    if (redirectPage) {
+      session['redirectPage'] = redirectPage
+    }
+    
     consumer.getOAuthRequestToken((error: any, oauthTokenKey: string, oauthTokenSecret: string) => {
       if (error) {
         const errorStr = JSON.stringify(error)

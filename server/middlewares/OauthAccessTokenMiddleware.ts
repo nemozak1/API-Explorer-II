@@ -64,15 +64,31 @@ export default class OauthAccessTokenMiddleware implements ExpressMiddlewareInte
           console.log(`OauthAccessTokenMiddleware.ts use says: clientConfig: ${JSON.stringify(clientConfig)}`)
           session['clientConfig'] = clientConfig
           console.log('OauthAccessTokenMiddleware.ts use says: Seems OK, redirecting..')
+          
+          let redirectPage: String
+
           const obpExplorerHome = process.env.VITE_OBP_API_EXPLORER_HOST
           if(!obpExplorerHome) {
             console.error(`VITE_OBP_API_EXPLORER_HOST: ${obpExplorerHome}`)
           }
-          console.log(`OauthAccessTokenMiddleware.ts use says: Will redirect to: ${obpExplorerHome}`)
+
+          if (session['redirectPage']) {
+            try {
+              redirectPage = session['redirectPage']
+              
+            } catch (e) {
+              console.log('OauthAccessTokenMiddleware.ts use says: Error decoding redirect URI')
+              redirectPage = obpExplorerHome
+            }
+          } else {
+            redirectPage = obpExplorerHome
+          }
+          
+          console.log(`OauthAccessTokenMiddleware.ts use says: Will redirect to: ${redirectPage}`)
           console.log('OauthAccessTokenMiddleware.ts use says: Here comes the session:')
           console.log(session)
           
-          response.redirect(`${obpExplorerHome}`)
+          response.redirect(redirectPage)
         }
       }
     )

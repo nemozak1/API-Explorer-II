@@ -49,10 +49,17 @@ export class UserController {
     this.oauthInjectedService.requestTokenKey = undefined
     this.oauthInjectedService.requestTokenSecret = undefined
     session['clientConfig'] = undefined
-    if(!this.obpExplorerHome) {
-      console.error(`VITE_OBP_API_EXPLORER_HOST: ${this.obpExplorerHome}`)
+
+    if (request.query.redirect) {
+      response.redirect(request.query.redirect as string)
+    } else {
+      if(!this.obpExplorerHome) {
+        console.error(`VITE_OBP_API_EXPLORER_HOST: ${this.obpExplorerHome}`)
+      }
+      response.redirect(this.obpExplorerHome)
     }
-    response.redirect(this.obpExplorerHome)
+
+    
     return response
   }
 

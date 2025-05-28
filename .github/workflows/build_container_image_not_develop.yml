@@ -9,7 +9,6 @@ env:
   DOCKER_HUB_ORGANIZATION: ${{ vars.DOCKER_HUB_ORGANIZATION }}
   DOCKER_HUB_REPOSITORY: api-explorer-ii
 
-
 jobs:
   build:
     runs-on: ubuntu-latest

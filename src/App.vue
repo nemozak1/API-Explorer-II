@@ -36,9 +36,16 @@ import HeaderNav from './components/HeaderNav.vue'
         <!--Header-->
         <HeaderNav />
       </el-header>
-      <RouterView />
+      <el-main>
+
+        <RouterView />
+      </el-main>
     </el-container>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+  .common-layout {
+    overflow: hidden;
+  }
+</style>

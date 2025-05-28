@@ -46,6 +46,7 @@ const obpApiPortalHost = ref(import.meta.env.VITE_OBP_API_PORTAL_HOST)
 const obpApiHybridPost = computed(() => obpApiPortalHost.value ? obpApiPortalHost.value : obpApiHost.value)
 const obpApiManagerHost = ref(import.meta.env.VITE_OBP_API_MANAGER_HOST)
 const hasObpApiManagerHost = computed(() => obpApiManagerHost.value ? true : false)
+const showObpApiManagerButton = computed(() => import.meta.env.VITE_SHOW_API_MANAGER_BUTTON === 'true')
 const loginUsername = ref('')
 const logoffurl = ref('')
 const obpApiVersions = ref(inject(obpApiActiveVersionsKey)!)
@@ -59,7 +60,8 @@ const headerLinksBackgroundColor = ref(headerLinksBackgroundColorSetting)
 const clearActiveTab = () => {
   const activeLinks = document.querySelectorAll('.router-link')
   for (const active of activeLinks) {
-    if (active.id) {
+    // Skip login and logoff buttons
+    if (active.id && active.id !== 'login' && active.id !== 'logoff') {
       active.style.backgroundColor = 'transparent'
       active.style.color = '#39455f'
     }
@@ -111,6 +113,12 @@ watchEffect(() => {
     }
   }
 })
+
+const getCurrentPath = () => {
+  const currentPath = route.path
+  return currentPath
+}
+
 </script>
 
 <template>
@@ -126,7 +134,7 @@ watchEffect(() => {
       <RouterLink class="router-link" id="header-nav-glossary" to="/glossary">{{
         $t('header.glossary')
       }}</RouterLink>
-      <a v-bind:href="obpApiManagerHost" v-show="hasObpApiManagerHost" class="router-link" id="header-nav-api-manager">
+      <a v-if="showObpApiManagerButton && hasObpApiManagerHost" v-bind:href="obpApiManagerHost" class="router-link" id="header-nav-api-manager">
         {{ $t('header.api_manager') }}
       </a>
       <span class="el-dropdown-link">
@@ -156,11 +164,11 @@ watchEffect(() => {
           <arrow-down />
         </el-icon>
       </span>-->
-      <a v-bind:href="'/api/connect'" v-show="isShowLoginButton" class="login-button router-link">
+      <a v-bind:href="'/api/connect?redirect='+ encodeURIComponent(getCurrentPath())" v-show="isShowLoginButton" class="login-button router-link" id="login">
         {{ $t('header.login') }}
       </a>
       <span v-show="isShowLogOffButton" class="login-user">{{ loginUsername }}</span>
-      <a v-bind:href="'/api/user/logoff'" v-show="isShowLogOffButton" class="logoff-button router-link">
+      <a v-bind:href="'/api/user/logoff?redirect=' + encodeURIComponent(getCurrentPath())" v-show="isShowLogOffButton" class="logoff-button router-link" id="logoff">
         {{ $t('header.logoff') }}
       </a>
     </RouterView>
@@ -226,8 +234,8 @@ nav {
   cursor: pointer;
 }
 
-.login-button,
-.logoff-button {
+a.login-button,
+a.logoff-button {
   margin: 5px;
   color: #ffffff;
   background-color: #32b9ce;

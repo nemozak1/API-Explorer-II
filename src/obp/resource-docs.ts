@@ -37,6 +37,14 @@ export async function getOBPResourceDocs(apiStandardAndVersion: string): Promise
   return await get(`/obp/${OBP_API_VERSION}/resource-docs/${apiStandardAndVersion}/obp`)
 }
 
+
+export async function getOBPDynamicResourceDocs(apiStandardAndVersion: string): Promise<any> {
+  const logMessage = `Loading Dynamic Docs for ${apiStandardAndVersion}`
+  console.log(logMessage)
+  updateLoadingInfoMessage(logMessage)
+  return await get(`/obp/${OBP_API_VERSION}/resource-docs/${apiStandardAndVersion}/obp?content=dynamic`)
+}
+
 export function getFilteredGroupedResourceDocs(apiStandardAndVersion: string, tags: any, docs: any): Promise<any> {
   console.log(docs);
   if (apiStandardAndVersion === undefined || docs === undefined || docs[apiStandardAndVersion] === undefined) return Promise.resolve<any>({})
@@ -70,6 +78,20 @@ export async function cacheDoc(cacheStorageOfResourceDocs: any): Promise<any> {
     const scannedAPIVersions = apiVersions.scanned_api_versions
     const resourceDocsMapping: any = {}
     for (const { apiStandard, API_VERSION } of scannedAPIVersions) {
+
+      // we need this to cache the dynamic entities resource doc
+      if (API_VERSION === 'dynamic-entity') {
+        const logMessage = `Caching Dynamic API { standard: ${apiStandard}, version: ${API_VERSION} }`
+        console.log(logMessage)
+        if (apiStandard) {
+          const version = `${apiStandard.toUpperCase()}${API_VERSION}`
+          const resourceDocs = await getOBPDynamicResourceDocs(version)
+          if (version && Object.keys(resourceDocs).includes('resource_docs'))
+            resourceDocsMapping[version] = resourceDocs
+        }
+        updateLoadingInfoMessage(logMessage)
+        continue
+      }
       const logMessage = `Caching API { standard: ${apiStandard}, version: ${API_VERSION} }`
       console.log(logMessage)
       if (apiStandard) {
