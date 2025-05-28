@@ -66,11 +66,11 @@ const footNote = ref({
   messageTags: ''
 })
 
-const requestFormRef = reactive<FormInstance>({})
+const requestFormRef = ref<FormInstance | null>(null)
 const requestForm = reactive({ url: '' })
 
-const roleFormRef = reactive<FormInstance>({})
-const roleForm = reactive({})
+const roleFormRef = ref<FormInstance | null>(null)
+const roleForm = reactive<FormInstance | any>({})
 
 const setOperationDetails = (id: string, version: string): void => {
   const operation = getOperationDetails(version, id, resourceDocs)

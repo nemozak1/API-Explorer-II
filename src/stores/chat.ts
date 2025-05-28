@@ -182,6 +182,22 @@ export const useChat = defineStore('chat', {
             }
         },
 
+        async retryStream(): Promise<void> {
+            // Retry the last message stream
+            if (this.currentAssistantMessage && this.currentAssistantMessage.id) {
+                const lastMessage = this.getMessageById(this.currentAssistantMessage.id);
+                if (lastMessage) {
+                    await this.stream({
+                        message: lastMessage as UserMessage,
+                    });
+                } else {
+                    console.warn('No current assistant message to retry');
+                }
+            } else {
+                console.warn('No current assistant message ID to retry');
+            }
+        },
+
         async stream(input: ChatStreamInput): Promise<void> {
 
             // By this point, if we have not set the thread ID we should do so

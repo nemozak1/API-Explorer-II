@@ -3,8 +3,8 @@ placeholder for Opey II Chat widget
 --> 
 <script lang="ts">
 
-import { ref, reactive } from 'vue'
-import { Close, Top as ElTop } from '@element-plus/icons-vue'
+import { ref, reactive, shallowRef } from 'vue'
+import { Close, Top as ElTop, WarnTriangleFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import ChatMessage from './ChatMessage.vue';
 import { v4 as uuidv4 } from 'uuid';
@@ -53,7 +53,15 @@ export default {
             const currentResponseKeys = Object.keys(currentUser)
             if (currentResponseKeys.includes('username')) {
                 if (!this.chat.userIsAuthenticated) {
-                    await this.chat.handleAuthentication()
+                    try {
+                        await this.chat.handleAuthentication()
+                    } catch (error) {
+                        console.error('Error in chat:', error);
+                        this.errorState.type = "authenticationError"
+                        this.errorState.message = "Woops! Looks like we are having trouble connecting to Opey..."
+                        this.errorState.icon = shallowRef(WarnTriangleFilled)
+                    }
+                    
                 }
                 return true
             } else {
